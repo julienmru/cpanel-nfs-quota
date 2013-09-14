@@ -1,0 +1,24 @@
+#!/usr/bin/php-cli
+<?php
+	/*
+	  cPanel NFS quota emulator
+	  Copyright 2013, Cahri (http://www.cahri.com/)
+	  Author: Julien Tessier
+	  Licensed under LGPL (http://www.gnu.org/licenses/lgpl.html)
+
+	 Version 1.0.0
+	*/
+	if(PHP_SAPI !== 'cli') die('Not running from CLI');
+?>
+*** Report for user quotas on device /dev/root
+Block grace time: 7days; Inode grace time: 7days
+                        Block limits                File limits
+User            used    soft    hard  grace    used  soft  hard  grace
+----------------------------------------------------------------------
+<?php
+	$users = file('/etc/passwd');
+	foreach($users as $user) {
+		$user = array_shift(explode(':',$user));
+		passthru(dirname(__FILE__).'/quota '.escapeshellarg($user).' fromrepquota');
+	}
+?>

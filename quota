@@ -1,0 +1,43 @@
+#!/usr/bin/php-cli
+<?php
+	/*
+	  cPanel NFS quota emulator
+	  Copyright 2013, Cahri (http://www.cahri.com/)
+	  Author: Julien Tessier
+	  Licensed under LGPL (http://www.gnu.org/licenses/lgpl.html)
+
+	 Version 1.0.0
+	*/
+	if(PHP_SAPI !== 'cli') die('Not running from CLI');
+	$user = $_SERVER['argv'][1];
+	if (is_numeric($user)) {
+		$u_id = $user;
+	} else {
+		if ($user_info = posix_getpwnam($user)) {
+			$uid = $user_info['uid'];
+		} else {
+			die("invalid user\n");
+		}
+	}
+	$blocks_used = $blocks_soft = $blocks_hard = $blocks_grace = $inodes_used = $inodes_soft = $inodes_hard = $inodes_grace = 0;
+	unset($lines);
+	exec('/usr/bin/quota -u '.escapeshellarg($uid).' -vw 2>/dev/null', $lines, $ret);
+	if ($ret) continue;
+	array_shift($lines);
+	array_shift($lines);
+	foreach($lines as $line) {
+		$cols = preg_split('/\s+/', trim($line));
+		$blocks_used += (int)$cols[1];
+		$blocks_soft += (int)$cols[2];
+		$blocks_hard += (int)$cols[3];
+		$inodes_used += (int)$cols[4];
+		$inodes_soft += (int)$cols[5];
+		$inodes_hard += (int)$cols[6];
+	}
+	if (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] == 'fromrepquota') { // this script is called by safe_fetch_repquota
+		printf("%s -- %d %d %d %d %d %d %d %d\n", $user, $blocks_used, $blocks_soft, $blocks_hard, $blocks_grace, $inodes_used, $inodes_soft, $inodes_hard, $inodes_grace);
+	} else {
+		print("dev blocks quota limit grace files quota limit grace\n");
+		printf("/dev/root %d %d %d %d %d %d %d %d\n", $blocks_used, $blocks_soft, $blocks_hard, $blocks_grace, $inodes_used, $inodes_soft, $inodes_hard, $inodes_grace);
+	}
+?>
