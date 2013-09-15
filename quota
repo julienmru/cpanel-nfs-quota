@@ -22,7 +22,7 @@
 	$blocks_used = $blocks_soft = $blocks_hard = $blocks_grace = $inodes_used = $inodes_soft = $inodes_hard = $inodes_grace = 0;
 	unset($lines);
 	exec('/usr/bin/quota -u '.escapeshellarg($uid).' -vw 2>/dev/null', $lines, $ret);
-	if ($ret) continue;
+	if ($ret) exit($ret);
 	array_shift($lines);
 	array_shift($lines);
 	foreach($lines as $line) {
