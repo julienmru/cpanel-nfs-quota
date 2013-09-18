@@ -6,23 +6,20 @@
 	  Author: Julien Tessier
 	  Licensed under LGPL (http://www.gnu.org/licenses/lgpl.html)
 
-	 Version 1.0.0
+	 Version 1.0.1
 	*/
 	if(PHP_SAPI !== 'cli') die('Not running from CLI');
 	$user = $_SERVER['argv'][1];
 	if (is_numeric($user)) {
 		$u_id = $user;
+		if (!exec('getent passwd '.escapeshellarg($u_id))) die("invalid user\n");
 	} else {
-		if ($user_info = posix_getpwnam($user)) {
-			$uid = $user_info['uid'];
-		} else {
-			die("invalid user\n");
-		}
+		if (!$u_id = exec('id -u '.escapeshellarg($user))) die("invalid user\n");
 	}
 	$blocks_used = $blocks_soft = $blocks_hard = $blocks_grace = $inodes_used = $inodes_soft = $inodes_hard = $inodes_grace = 0;
 	unset($lines);
-	exec('/usr/bin/quota -u '.escapeshellarg($uid).' -vw 2>/dev/null', $lines, $ret);
-	if ($ret) exit($ret);
+	exec('/usr/bin/quota -u '.escapeshellarg($u_id).' -vw 2>/dev/null', $lines, $ret);
+	if ($ret) continue;
 	array_shift($lines);
 	array_shift($lines);
 	foreach($lines as $line) {

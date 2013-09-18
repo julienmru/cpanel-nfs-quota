@@ -19,8 +19,8 @@ User            used    soft    hard  grace    used  soft  hard  grace
 10.x.y.z:/nfs-server/home 6989867       0       0               0       0       0        
 </pre>
 
-Installing
-----------
+Installation
+------------
 
 Just run the following commands as root:
 
@@ -31,6 +31,12 @@ Just run the following commands as root:
 5. `mv safe_fetch_repquota safe_fetch_repquota.bak`
 6. `wget https://raw.github.com/cahri/cpanel-nfs-quota/master/safe_fetch_repquota`
 7. `chmod 755 safe_fetch_repquota`
+
+Version history
+---------------
+
+* 1.0.1: removed dependency on POSIX libary
+* 1.0.0: initial release
 
 Known limitations
 -----------------
